@@ -1,16 +1,4 @@
 # board is 9X9
-grid = [
-    [7, 8, 0, 4, 0, 0, 1, 2, 0],
-    [6, 0, 0, 0, 7, 5, 0, 0, 9],
-    [0, 0, 0, 6, 0, 1, 0, 7, 8],
-    [0, 0, 7, 0, 4, 0, 2, 6, 0],
-    [0, 0, 1, 0, 5, 0, 9, 3, 0],
-    [9, 0, 4, 0, 6, 0, 0, 0, 5],
-    [0, 7, 0, 3, 0, 0, 0, 1, 2],
-    [1, 2, 0, 0, 0, 7, 4, 0, 0],
-    [0, 4, 9, 2, 0, 6, 0, 0, 7]
-]
-
 
 def solve(board):
     find = find_empty(board)
@@ -47,7 +35,7 @@ def is_valid_move(board, num, pos):
 def print_board(board):
     for i in range(len(board)):
         if i % 3 == 0 and i != 0:
-            print("- - - - - - - - -")
+            print("- - - - - - - - - - - - -")
         for j in range(len(board[0])):
             if j % 3 == 0 and j != 0:
                 print(" | ", end="")
@@ -65,6 +53,26 @@ def find_empty(board):
     return None
 
 
+""""
+grid = [
+    [7, 8, 0, 4, 0, 0, 1, 2, 0],
+    [6, 0, 0, 0, 7, 5, 0, 0, 9],
+    [0, 0, 0, 6, 0, 1, 0, 7, 8],
+    [0, 0, 7, 0, 4, 0, 2, 6, 0],
+    [0, 0, 1, 0, 5, 0, 9, 3, 0],
+    [9, 0, 4, 0, 6, 0, 0, 0, 5],
+    [0, 7, 0, 3, 0, 0, 0, 1, 2],
+    [1, 2, 0, 0, 0, 7, 4, 0, 0],
+    [0, 4, 9, 2, 0, 6, 0, 0, 7]
+]
+""" 
+grid = []
+for i in range(1, 10):
+    row = list(input("Enter Row num: " + str(i) + "\n"))
+    lst = []
+    for n in row:
+        lst.append(int(n))
+    grid.append(lst)
 print_board(grid)
 solve(grid)
 print("solved board is: ")
