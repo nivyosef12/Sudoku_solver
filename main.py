@@ -1,4 +1,29 @@
 # board is 9X9
+def get_grid():
+    option = int(input("Would you like to generate a board (1) or to play with specefic board? (2)\n"))
+    if option == 1:
+        return [  # generate
+            [7, 8, 0, 4, 0, 0, 1, 2, 0],
+            [6, 0, 0, 0, 7, 5, 0, 0, 9],
+            [0, 0, 0, 6, 0, 1, 0, 7, 8],
+            [0, 0, 7, 0, 4, 0, 2, 6, 0],
+            [0, 0, 1, 0, 5, 0, 9, 3, 0],
+            [9, 0, 4, 0, 6, 0, 0, 0, 5],
+            [0, 7, 0, 3, 0, 0, 0, 1, 2],
+            [1, 2, 0, 0, 0, 7, 4, 0, 0],
+            [0, 4, 9, 2, 0, 6, 0, 0, 7]
+        ]
+    grid = []
+    for i in range(1, 10):
+        row = list(input("Enter Row " + str(i) + " nums: \n"))
+        while len(row) != 9:
+            row = list(input("Invalid number of elements, please enter again: \n"))
+        lst = []
+        for n in row:
+            lst.append(int(n))
+        grid.append(lst)
+    return grid
+
 
 def solve(board):
     find = find_empty(board)
@@ -53,27 +78,15 @@ def find_empty(board):
     return None
 
 
-""""
-grid = [
-    [7, 8, 0, 4, 0, 0, 1, 2, 0],
-    [6, 0, 0, 0, 7, 5, 0, 0, 9],
-    [0, 0, 0, 6, 0, 1, 0, 7, 8],
-    [0, 0, 7, 0, 4, 0, 2, 6, 0],
-    [0, 0, 1, 0, 5, 0, 9, 3, 0],
-    [9, 0, 4, 0, 6, 0, 0, 0, 5],
-    [0, 7, 0, 3, 0, 0, 0, 1, 2],
-    [1, 2, 0, 0, 0, 7, 4, 0, 0],
-    [0, 4, 9, 2, 0, 6, 0, 0, 7]
-]
-"""
-grid = []
-for i in range(1, 10):
-    row = list(input("Enter Row num: " + str(i) + "\n"))
-    lst = []
-    for n in row:
-        lst.append(int(n))
-    grid.append(lst)
-print_board(grid)
-solve(grid)
-print("solved board is: ")
-print_board(grid)
+def main():
+    # commit -> get grid function added
+    grid = get_grid()
+    print_board(grid)
+    if solve(grid):
+        print("solved board is: ")
+        print_board(grid)
+    else:
+        print("no possible solution")
+
+
+main()
