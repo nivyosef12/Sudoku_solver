@@ -1,4 +1,17 @@
 # board is 9X9
+grid = [
+    [7, 8, 0, 4, 0, 0, 1, 2, 0],
+    [6, 0, 0, 0, 7, 5, 0, 0, 9],
+    [0, 0, 0, 6, 0, 1, 0, 7, 8],
+    [0, 0, 7, 0, 4, 0, 2, 6, 0],
+    [0, 0, 1, 0, 5, 0, 9, 3, 0],
+    [9, 0, 4, 0, 6, 0, 0, 0, 5],
+    [0, 7, 0, 3, 0, 0, 0, 1, 2],
+    [1, 2, 0, 0, 0, 7, 4, 0, 0],
+    [0, 4, 9, 2, 0, 6, 0, 0, 7]
+]
+
+
 def solve(board):
     find = find_empty(board)
     if not find:
@@ -6,7 +19,7 @@ def solve(board):
     else:
         row, col = find
     for i in range(1, 10):
-        if is_valid_move(board, i, [row, col]):
+        if is_valid_move(board, i, (row, col)):
             board[row][col] = i
             if solve(board):
                 return True
@@ -15,7 +28,7 @@ def solve(board):
 
 
 def is_valid_move(board, num, pos):
-    for i in range(board[0]):
+    for i in range(len(board[0])):
         if board[pos[0]][i] == num and pos[1] != i:  # check row
             return False
         if board[i][pos[1]] == num and pos[0] != i:  # check column
@@ -26,7 +39,7 @@ def is_valid_move(board, num, pos):
     box_y = pos[1] // 3
     for i in range(box_x * 3, box_x * 3 + 3):
         for j in range(box_y * 3, box_y * 3 + 3):
-            if board[i][j] == num and [i, j] != pos:
+            if board[i][j] == num and (i, j) != pos:
                 return False
     return True
 
@@ -50,3 +63,9 @@ def find_empty(board):
             if board[i][j] == 0:
                 return i, j  # row, col
     return None
+
+
+print_board(grid)
+solve(grid)
+print("solved board is: ")
+print_board(grid)
