@@ -72,32 +72,59 @@ def main():
                 if event.key == pg.K_s:
                     solve(board.board_game)
                 if event.key == pg.K_1 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 1
+                    if is_valid_move(board.board_game, 1, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 1
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 1
                 if event.key == pg.K_2 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 2
+                    if is_valid_move(board.board_game, 2, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 2
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 2
                 if event.key == pg.K_3 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 3
+                    if is_valid_move(board.board_game, 3, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 3
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 3
                 if event.key == pg.K_4 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 4
+                    if is_valid_move(board.board_game, 4, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 4
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 4
                 if event.key == pg.K_5 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 5
+                    if is_valid_move(board.board_game, 5, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 5
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 5
                 if event.key == pg.K_6 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 6
+                    if is_valid_move(board.board_game, 6, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 6
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 6
                 if event.key == pg.K_7 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 7
-                    key = 7
+                    if is_valid_move(board.board_game, 7, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 7
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
+                        key = 7
                 if event.key == pg.K_8 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 8
-                    key = 8
+                    if is_valid_move(board.board_game, 8, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 8
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
+                        key = 8
                 if event.key == pg.K_9 and board.selected != (-1, -1):
-                    board.board_game[board.selected[1]][board.selected[0]] = 9
-                    key = 9
+                    if is_valid_move(board.board_game, 9, board.selected):
+                        board.board_game[board.selected[1]][board.selected[0]] = 9
+                    else:
+                        board.board_game[board.selected[1]][board.selected[0]] = 0
+                        key = 9
         draw(screen, font, board)
 
 
