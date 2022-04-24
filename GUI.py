@@ -71,6 +71,7 @@ def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_s:
                     solve(board.board_game)
+                    board.selected = (-1, -1)
                 if event.key == pg.K_1 and board.selected != (-1, -1):
                     if is_valid_move(board.board_game, 1, board.selected):
                         board.board_game[board.selected[1]][board.selected[0]] = 1
