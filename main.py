@@ -79,7 +79,6 @@ def find_empty(board):
 
 
 def main():
-    # commit -> get grid function added
     grid = get_grid()
     print_board(grid)
     if solve(grid):
