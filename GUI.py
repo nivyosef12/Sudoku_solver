@@ -1,37 +1,11 @@
 import pygame as pg
 import sys
-# import get grid from main -> what is the problem
+from main import get_grid
 
 pg.init()
 screen_size = 750, 750
 screen = pg.display.set_mode(screen_size)
 font = pg.font.SysFont(None, 80)
-
-
-def get_grid():
-    option = int(input("Would you like to generate a board (1) or to play with specefic board? (2)\n"))
-    if option == 1:
-        return [  # generate
-            [7, 8, 0, 4, 0, 0, 1, 2, 0],
-            [6, 0, 0, 0, 7, 5, 0, 0, 9],
-            [0, 0, 0, 6, 0, 1, 0, 7, 8],
-            [0, 0, 7, 0, 4, 0, 2, 6, 0],
-            [0, 0, 1, 0, 5, 0, 9, 3, 0],
-            [9, 0, 4, 0, 6, 0, 0, 0, 5],
-            [0, 7, 0, 3, 0, 0, 0, 1, 2],
-            [1, 2, 0, 0, 0, 7, 4, 0, 0],
-            [0, 4, 9, 2, 0, 6, 0, 0, 7]
-        ]
-    grid = []
-    for i in range(1, 10):
-        row = list(input("Enter Row " + str(i) + " nums: \n"))
-        while len(row) != 9:
-            row = list(input("Invalid number of elements, please enter again: \n"))
-        lst = []
-        for n in row:
-            lst.append(int(n))
-        grid.append(lst)
-    return grid
 
 
 def draw_background():

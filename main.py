@@ -89,4 +89,5 @@ def main():
         print("no possible solution")
 
 
-main()
+if __name__ == '__main__':
+    main()
