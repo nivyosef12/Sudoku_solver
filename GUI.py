@@ -13,6 +13,7 @@ class Board:
     def __init__(self, board_game):
         self.board_game = board_game
         self.selected = (-1, -1)  # selected by mouse click
+        self.strikes = 0
         self.cells = []
         for i in range(9):
             list_i = []
@@ -32,28 +33,43 @@ class Cell:
 def draw_background(screen, board):
     screen.fill(pg.Color("white"))
     offset = 15
+    # draw game board
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, offset, 720, 720), 10)
-    # pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, 720 + offset, 720, 720), 10)
     i = 1
     while i * 80 < 720:
         line_width = 5 if i % 3 > 0 else 10
         # drew vertical lines
-        pg.draw.line(screen, pg.Color("black"), pg.Vector2((i * 80) + offset, offset), pg.Vector2((i * 80) + offset, 735)
+        pg.draw.line(screen, pg.Color("black"), ((i * 80) + offset, offset), ((i * 80) + offset, 735)
                      , line_width)
         # drew horizontal lines
-        pg.draw.line(screen, pg.Color("black"), pg.Vector2(offset, (i * 80) + offset), pg.Vector2(735, (i * 80) + offset)
+        pg.draw.line(screen, pg.Color("black"), (offset, (i * 80) + offset), (735, (i * 80) + offset)
                      , line_width)
+        # drew horizontal lines of menu
+        if i == 6 or i == 7:
+            pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
+                         , line_width)
+            if i == 6:
+                font = pg.font.SysFont(None, 80)
+                strikes_text = font.render('STRIKES', True, pg.Color("green"))
+                screen.blit(strikes_text, ((500 + screen_size[0] ) // 2, (((i * 80) + ((i + 1) * 80)) // 2) - 5))
+            else:
+                for j in range(board.strikes):
+                    font = pg.font.SysFont(None, 120)
+                    strikes_text = font.render('X', True, pg.Color("red"))
+                    screen.blit(strikes_text, (((450 + screen_size[0]) // 2) + j * 120, (((i * 80) + ((i + 2) * 80)) // 2) - 20))
         i += 1
         # paint clicked cell with red
         if board.selected != (-1, -1) and not board.cells[board.selected[0]][board.selected[1]].immutable:
             selected_rect = pg.Rect(offset + (80 * board.selected[1]), offset + (80 * board.selected[0]), 80, 80)
             pg.draw.rect(screen, pg.Color("red"), selected_rect, 10)
+    # draw menu
+    pg.draw.rect(screen, pg.Color("black"), pg.Rect(720 + offset, offset, 465, 720), 10)
 
 
 def draw_numbers(screen, font, board):
     row = 0
     offset = 35
-    board_game = board.board_game
+    # board_game = board.board_game
     while row < 9:
         col = 0
         while col < 9:
@@ -99,12 +115,11 @@ def check_move(board):
 
 
 def main():
+    board = Board(get_grid())  # deep copy??
     screen = pg.display.set_mode(screen_size)
     font = pg.font.SysFont(None, 80)
     pg.display.set_caption("Sudoku")
-    board = Board(get_grid())
     board_game = board.board_game
-    strikes = 0
     while 1:
         key = None
         for event in pg.event.get():
@@ -116,7 +131,6 @@ def main():
                     board.selected = (-1, -1)
                 else:
                     board.selected = (((pos[1] - 15) // 80), ((pos[0] - 15) // 80))
-                    print(board.selected)
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_s:
                     if not solve(board_game):
@@ -127,7 +141,7 @@ def main():
                             board.cells[i][j].val = board_game[i][j]
                 if event.key == pg.K_KP_ENTER and board.selected != (-1, -1):
                     if not check_move(board):
-                        strikes += 1
+                        board.strikes += 1
                 if event.key == pg.K_0 and board.selected != (-1, -1):
                     key = 0
                 if event.key == pg.K_1 and board.selected != (-1, -1):
@@ -151,7 +165,7 @@ def main():
         if key is not None:
             make_change(board, key)
         draw(screen, font, board)
-        if strikes >= 3:
+        if board.strikes >= 3:
             print("game over")
             break
 
