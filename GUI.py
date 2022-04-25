@@ -55,15 +55,30 @@ def draw_background(screen, board):
         if board.selected != (-1, -1) and not board.cells[board.selected[0]][board.selected[1]].immutable:
             selected_rect = pg.Rect(offset + (80 * board.selected[1]), offset + (80 * board.selected[0]), 80, 80)
             pg.draw.rect(screen, pg.Color("red"), selected_rect, 10)
-    # draw menu
+
+
+# Render each word and check how many words can fit the screen
+def blit_text(surface, text, pos, font, color=pg.Color('black')):
+    words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
+    space = font.size(' ')[0]  # The width of a space.
+    max_width, max_height = surface.get_size()
+    x, y = pos
+    for line in words:
+        for word in line:
+            word_surface = font.render(word, 0, color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_width:
+                x = pos[0]  # Reset the x.
+                y += word_height  # Start on new row.
+            surface.blit(word_surface, (x, y))
+            x += word_width + space
+        x = pos[0]  # Reset the x.
+        y += word_height  # Start on new row.
 
 
 def draw_menu(screen, board, line_width, i, offset):
     font = pg.font.SysFont("Segoe UI", 20)
-    lines = menu_explanation.splitlines()
-    for j, line in enumerate(lines):
-        menu_text = font.render(line, True, pg.Color("black"))
-        screen.blit(menu_text, (screen_size[1], offset * j * 2 + 30))
+    blit_text(screen, menu_explanation, (screen_size[1], offset * 2 + 10), font, pg.Color('black'))
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(720 + offset, offset, 465, 720), 10)
     if i == 6 or i == 7:
         pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
