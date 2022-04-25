@@ -1,6 +1,5 @@
 # board is 9X9
-def get_grid():
-    option = int(input("Would you like to generate a board (1) or to play with specefic board? (2)\n"))
+def get_grid(option):
     if option == 1:
         return [  # generate
             [7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -79,7 +78,8 @@ def find_empty(board):
 
 
 def main():
-    grid = get_grid()
+    option = int(input("Would you like to generate a board (1) or to play with specefic board? (2)\n"))
+    grid = get_grid(option)
     print_board(grid)
     if solve(grid):
         print("solved board is: ")

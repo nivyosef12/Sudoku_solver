@@ -121,7 +121,7 @@ def check_move(board):
 
 
 def main():
-    board = Board(get_grid())  # deep copy??
+    board = Board(get_grid(1))  # deep copy??
     screen = pg.display.set_mode(screen_size)
     font = pg.font.SysFont(None, 80)
     pg.display.set_caption("Sudoku")
