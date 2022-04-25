@@ -15,25 +15,28 @@ class Board:
 
 def draw_background(screen, board):
     screen.fill(pg.Color("white"))
-    pg.draw.rect(screen, pg.Color("black"), pg.Rect(15, 15, 720, 720), 10)
+    offset = 15
+    pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, offset, 720, 720), 10)
     i = 1
     while i * 80 < 720:
         line_width = 5 if i % 3 > 0 else 10
         # drew vertical lines
-        pg.draw.line(screen, pg.Color("black"), pg.Vector2((i * 80) + 15, 15), pg.Vector2((i * 80) + 15, 735)
+        pg.draw.line(screen, pg.Color("black"), pg.Vector2((i * 80) + offset, offset), pg.Vector2((i * 80) + offset, 735)
                      , line_width)
         # drew horizontal lines
-        pg.draw.line(screen, pg.Color("black"), pg.Vector2(15, (i * 80) + 15), pg.Vector2(735, (i * 80) + 15)
+        pg.draw.line(screen, pg.Color("black"), pg.Vector2(offset, (i * 80) + offset), pg.Vector2(735, (i * 80) + offset)
                      , line_width)
         i += 1
+        # paint clicked cell with red
         if board.selected != (-1, -1):
-            selected_rect = pg.Rect(15 + (80 * board.selected[0]), 15 + (80 * board.selected[1]), 80, 80)
+            selected_rect = pg.Rect(offset + (80 * board.selected[0]), offset + (80 * board.selected[1]), 80, 80)
             pg.draw.rect(screen, pg.Color("red"), selected_rect, 10)
 
 
-def draw_numbers(screen, font, board_game):
+def draw_numbers(screen, font, board):
     row = 0
     offset = 35
+    board_game = board.board_game
     while row < 9:
         col = 0
         while col < 9:
@@ -47,8 +50,15 @@ def draw_numbers(screen, font, board_game):
 
 def draw(screen, font, board):
     draw_background(screen, board)
-    draw_numbers(screen, font, board.board_game)
+    draw_numbers(screen, font, board)
     pg.display.flip()
+
+
+def make_change(board_game, selected, key):
+    if is_valid_move(board_game, key, selected):
+        board_game[selected[1]][selected[0]] = key
+    else:
+        board_game[selected[1]][selected[0]] = 0
 
 
 def main():
@@ -56,9 +66,10 @@ def main():
     font = pg.font.SysFont(None, 80)
     pg.display.set_caption("Sudoku")
     board = Board(get_grid())
-    key = None
+    board_game = board.board_game
+    strikes = 0
     while 1:
-
+        key = None
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 sys.exit()
@@ -70,62 +81,29 @@ def main():
                     board.selected = (((pos[0] - 15) // 80), ((pos[1] - 15) // 80))
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_s:
-                    solve(board.board_game)
-                    board.selected = (-1, -1)
+                    if not solve(board_game):
+                        print("no possible solution for that current board")
+                        sys.exit()
                 if event.key == pg.K_1 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 1, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 1
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 1
                 if event.key == pg.K_2 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 2, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 2
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 2
                 if event.key == pg.K_3 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 3, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 3
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 3
                 if event.key == pg.K_4 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 4, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 4
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 4
                 if event.key == pg.K_5 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 5, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 5
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 5
                 if event.key == pg.K_6 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 6, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 6
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
                     key = 6
                 if event.key == pg.K_7 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 7, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 7
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
-                        key = 7
+                    key = 7
                 if event.key == pg.K_8 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 8, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 8
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
-                        key = 8
+                    key = 8
                 if event.key == pg.K_9 and board.selected != (-1, -1):
-                    if is_valid_move(board.board_game, 9, board.selected):
-                        board.board_game[board.selected[1]][board.selected[0]] = 9
-                    else:
-                        board.board_game[board.selected[1]][board.selected[0]] = 0
-                        key = 9
+                    key = 9
+        if key is not None:
+            make_change(board_game, board.selected, key)
         draw(screen, font, board)
 
 
