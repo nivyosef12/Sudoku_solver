@@ -44,26 +44,30 @@ def draw_background(screen, board):
         # drew horizontal lines
         pg.draw.line(screen, pg.Color("black"), (offset, (i * 80) + offset), (735, (i * 80) + offset)
                      , line_width)
-        # drew horizontal lines of menu
-        if i == 6 or i == 7:
-            pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
-                         , line_width)
-            if i == 6:
-                font = pg.font.SysFont(None, 80)
-                strikes_text = font.render('STRIKES', True, pg.Color("green"))
-                screen.blit(strikes_text, ((500 + screen_size[0] ) // 2, (((i * 80) + ((i + 1) * 80)) // 2) - 5))
-            else:
-                for j in range(board.strikes):
-                    font = pg.font.SysFont(None, 120)
-                    strikes_text = font.render('X', True, pg.Color("red"))
-                    screen.blit(strikes_text, (((450 + screen_size[0]) // 2) + j * 120, (((i * 80) + ((i + 2) * 80)) // 2) - 20))
+        draw_menu(screen, board, line_width, i, offset)
         i += 1
         # paint clicked cell with red
         if board.selected != (-1, -1) and not board.cells[board.selected[0]][board.selected[1]].immutable:
             selected_rect = pg.Rect(offset + (80 * board.selected[1]), offset + (80 * board.selected[0]), 80, 80)
             pg.draw.rect(screen, pg.Color("red"), selected_rect, 10)
     # draw menu
+
+
+def draw_menu(screen, board, line_width, i, offset):
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(720 + offset, offset, 465, 720), 10)
+    if i == 6 or i == 7:
+        pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
+                     , line_width)
+        if i == 6:
+            font = pg.font.SysFont(None, 80)
+            strikes_text = font.render('STRIKES', True, pg.Color("green"))
+            screen.blit(strikes_text, ((500 + screen_size[0]) // 2, (((i * 80) + ((i + 1) * 80)) // 2) - 5))
+        else:
+            for j in range(board.strikes):
+                font = pg.font.SysFont(None, 120)
+                strikes_text = font.render('X', True, pg.Color("red"))
+                screen.blit(strikes_text,
+                            (((450 + screen_size[0]) // 2) + j * 120, (((i * 80) + ((i + 2) * 80)) // 2) - 20))
 
 
 def draw_numbers(screen, font, board):
@@ -105,6 +109,8 @@ def make_change(board, key):
 
 def check_move(board):
     cell = board.cells[board.selected[0]][board.selected[1]]
+    if cell.val == 0:
+        return True
     if cell.val != 0 and not cell.immutable:
         if solve(copy.deepcopy(board.board_game)):
             cell.immutable = True
