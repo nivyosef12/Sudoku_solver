@@ -1,9 +1,11 @@
+import copy
+
 import pygame as pg
 import sys
 from main import get_grid, solve, is_valid_move
 
 pg.init()
-screen_size = 750, 750
+screen_size = 1200, 750
 
 
 class Board:
@@ -31,6 +33,7 @@ def draw_background(screen, board):
     screen.fill(pg.Color("white"))
     offset = 15
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, offset, 720, 720), 10)
+    # pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, 720 + offset, 720, 720), 10)
     i = 1
     while i * 80 < 720:
         line_width = 5 if i % 3 > 0 else 10
@@ -54,7 +57,7 @@ def draw_numbers(screen, font, board):
     while row < 9:
         col = 0
         while col < 9:
-            num = board_game[row][col]
+            num = board.cells[row][col].val
             if num != 0:
                 if board.cells[row][col].immutable:
                     n_text = font.render(str(num), True, pg.Color("black"))
@@ -73,12 +76,26 @@ def draw(screen, font, board):
 
 def make_change(board, key):
     selected = board.selected
-    if not board.cells[selected[0]][selected[1]].immutable:
+    cell_to_be_changed = board.cells[selected[0]][selected[1]]
+    if not cell_to_be_changed.immutable:
         board_game = board.board_game
         if is_valid_move(board_game, key, selected):
+            cell_to_be_changed.val = key
             board_game[selected[0]][selected[1]] = key
         else:
+            cell_to_be_changed.val = 0
             board_game[selected[0]][selected[1]] = 0
+
+
+def check_move(board):
+    cell = board.cells[board.selected[0]][board.selected[1]]
+    if cell.val != 0 and not cell.immutable:
+        if solve(copy.deepcopy(board.board_game)):
+            cell.immutable = True
+        else:
+            cell.val = 0
+            board.board_game[board.selected[0]][board.selected[1]] = 0
+    return cell.immutable
 
 
 def main():
@@ -105,6 +122,12 @@ def main():
                     if not solve(board_game):
                         print("no possible solution for that current board")
                         sys.exit()
+                    for i in range(len(board_game)):
+                        for j in range(len(board_game)):
+                            board.cells[i][j].val = board_game[i][j]
+                if event.key == pg.K_KP_ENTER and board.selected != (-1, -1):
+                    if not check_move(board):
+                        strikes += 1
                 if event.key == pg.K_0 and board.selected != (-1, -1):
                     key = 0
                 if event.key == pg.K_1 and board.selected != (-1, -1):
@@ -128,6 +151,9 @@ def main():
         if key is not None:
             make_change(board, key)
         draw(screen, font, board)
+        if strikes >= 3:
+            print("game over")
+            break
 
 
 main()
