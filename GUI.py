@@ -6,6 +6,11 @@ from main import get_grid, solve, is_valid_move
 
 pg.init()
 screen_size = 1200, 750
+menu_explanation = "1. Click on the square you want to choose it \n2. Enter a number (invalid input or 0 won't appear " \
+                   "on the board \n3. While a number is red your choice is not final \n4. To finalize your choice, " \
+                   "click on the square you want to finalize and the press enter \n5. If you were correct the number " \
+                   "will turn black, else it will disappear and you'll get a strike \n6. Game is over when you'll get " \
+                   "3 strikes or when solving the sudoku \n7. To solve at any given moment, press s "
 
 
 class Board:
@@ -54,13 +59,18 @@ def draw_background(screen, board):
 
 
 def draw_menu(screen, board, line_width, i, offset):
+    font = pg.font.SysFont("Segoe UI", 20)
+    lines = menu_explanation.splitlines()
+    for j, line in enumerate(lines):
+        menu_text = font.render(line, True, pg.Color("black"))
+        screen.blit(menu_text, (screen_size[1], offset * j * 2 + 30))
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(720 + offset, offset, 465, 720), 10)
     if i == 6 or i == 7:
         pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
                      , line_width)
         if i == 6:
-            font = pg.font.SysFont(None, 80)
-            strikes_text = font.render('STRIKES', True, pg.Color("green"))
+            font = pg.font.SysFont("Ariel", 80)
+            strikes_text = font.render('STRIKES', True, pg.Color("black"))
             screen.blit(strikes_text, ((500 + screen_size[0]) // 2, (((i * 80) + ((i + 1) * 80)) // 2) - 5))
         else:
             for j in range(board.strikes):
