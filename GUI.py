@@ -1,5 +1,5 @@
 import copy
-
+import time
 import pygame as pg
 import sys
 from main import get_grid, solve, is_valid_move
@@ -35,7 +35,7 @@ class Cell:
         self.immutable = immutable
 
 
-def draw_background(screen, board):
+def draw_background(screen, board, play_time):
     screen.fill(pg.Color("white"))
     offset = 15
     # draw game board
@@ -49,12 +49,20 @@ def draw_background(screen, board):
         # drew horizontal lines
         pg.draw.line(screen, pg.Color("black"), (offset, (i * 80) + offset), (735, (i * 80) + offset)
                      , line_width)
-        draw_menu(screen, board, line_width, i, offset)
+        draw_menu(screen, board, line_width, i, offset, play_time)
         i += 1
         # paint clicked cell with red
         if board.selected != (-1, -1) and not board.cells[board.selected[0]][board.selected[1]].immutable:
             selected_rect = pg.Rect(offset + (80 * board.selected[1]), offset + (80 * board.selected[0]), 80, 80)
             pg.draw.rect(screen, pg.Color("red"), selected_rect, 10)
+
+
+def format_time(secs):
+    sec = secs % 60
+    minute = secs // 60
+    hour = minute // 60
+    clock = " " + str(minute) + ":" + str(sec) if hour == 0 else " " + str(hour) + ":" + str(minute) + ":" + str(sec)
+    return clock
 
 
 # Render each word and check how many words can fit the screen
@@ -76,10 +84,12 @@ def blit_text(surface, text, pos, font, color=pg.Color('black')):
         y += word_height  # Start on new row.
 
 
-def draw_menu(screen, board, line_width, i, offset):
+def draw_menu(screen, board, line_width, i, offset, play_time):
     font = pg.font.SysFont("Segoe UI", 20)
     blit_text(screen, menu_explanation, (screen_size[1], offset * 2 + 10), font, pg.Color('black'))
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(720 + offset, offset, 465, 720), 10)
+    time_text = font.render("Time: " + format_time(play_time), True, pg.Color("black"))
+    screen.blit(time_text, (750, 460))
     if i == 6 or i == 7:
         pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
                      , line_width)
@@ -113,8 +123,8 @@ def draw_numbers(screen, font, board):
         row += 1
 
 
-def draw(screen, font, board):
-    draw_background(screen, board)
+def draw(screen, font, board, play_time):
+    draw_background(screen, board, play_time)
     draw_numbers(screen, font, board)
     pg.display.flip()
 
@@ -151,7 +161,9 @@ def main():
     font = pg.font.SysFont(None, 80)
     pg.display.set_caption("Sudoku")
     board_game = board.board_game
+    start = time.time()
     while 1:
+        play_time = round(time.time() - start)
         key = None
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -195,7 +207,7 @@ def main():
                     key = 9
         if key is not None:
             make_change(board, key)
-        draw(screen, font, board)
+        draw(screen, font, board, play_time)
         if board.strikes >= 3:
             print("game over")
             break
