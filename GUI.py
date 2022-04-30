@@ -6,6 +6,9 @@ from main import get_grid, solve, is_valid_move
 
 pg.init()
 screen_size = 1200, 750
+offset = 15
+board_size = 720
+cell_size = 80
 menu_explanation = "1. Click on the square you want to choose it \n2. Enter a number (invalid input or 0 won't appear " \
                    "on the board \n3. While a number is red your choice is not final \n4. To finalize your choice, " \
                    "click on the square you want to finalize and the press enter \n5. If you were correct the number " \
@@ -20,11 +23,14 @@ class Board:
         self.selected = (-1, -1)  # selected by mouse click
         self.strikes = 0
         self.cells = []
+        self.empty_cells = 0
         for i in range(9):
             list_i = []
             for j in range(9):
                 val = board_game[i][j]
                 list_i.append(Cell(val, val != 0))
+                if board_game[i][j] == 0:
+                    self.empty_cells += 1
             self.cells.append(list_i)
 
 
@@ -37,23 +43,23 @@ class Cell:
 
 def draw_background(screen, board, play_time):
     screen.fill(pg.Color("white"))
-    offset = 15
     # draw game board
-    pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, offset, 720, 720), 10)
+    pg.draw.rect(screen, pg.Color("black"), pg.Rect(offset, offset, board_size, board_size), 10)
     i = 1
-    while i * 80 < 720:
+    while i * cell_size < board_size:
         line_width = 5 if i % 3 > 0 else 10
         # drew vertical lines
-        pg.draw.line(screen, pg.Color("black"), ((i * 80) + offset, offset), ((i * 80) + offset, 735)
-                     , line_width)
+        pg.draw.line(screen, pg.Color("black"), ((i * cell_size) + offset, offset),
+                     ((i * cell_size) + offset, (board_size + offset)), line_width)
         # drew horizontal lines
-        pg.draw.line(screen, pg.Color("black"), (offset, (i * 80) + offset), (735, (i * 80) + offset)
-                     , line_width)
-        draw_menu(screen, board, line_width, i, offset, play_time)
+        pg.draw.line(screen, pg.Color("black"), (offset, (i * cell_size) + offset),
+                     ((board_size + offset), (i * cell_size) + offset), line_width)
+        draw_menu(screen, board, line_width, i, play_time)
         i += 1
         # paint clicked cell with red
         if board.selected != (-1, -1) and not board.cells[board.selected[0]][board.selected[1]].immutable:
-            selected_rect = pg.Rect(offset + (80 * board.selected[1]), offset + (80 * board.selected[0]), 80, 80)
+            selected_rect = pg.Rect(offset + (cell_size * board.selected[1]),
+                                    offset + (cell_size * board.selected[0]), cell_size, cell_size)
             pg.draw.rect(screen, pg.Color("red"), selected_rect, 10)
 
 
@@ -84,30 +90,31 @@ def blit_text(surface, text, pos, font, color=pg.Color('black')):
         y += word_height  # Start on new row.
 
 
-def draw_menu(screen, board, line_width, i, offset, play_time):
+def draw_menu(screen, board, line_width, i, play_time):
     font = pg.font.SysFont("Segoe UI", 20)
     blit_text(screen, menu_explanation, (screen_size[1], offset * 2 + 10), font, pg.Color('black'))
-    pg.draw.rect(screen, pg.Color("black"), pg.Rect(720 + offset, offset, 465, 720), 10)
+    pg.draw.rect(screen, pg.Color("black"), pg.Rect(board_size + offset, offset, 465, board_size), 10)
     time_text = font.render("Time: " + format_time(play_time), True, pg.Color("black"))
-    screen.blit(time_text, (750, 460))
+    screen.blit(time_text, (screen_size[1], 460))
     if i == 6 or i == 7:
-        pg.draw.line(screen, pg.Color("black"), (735, offset + (i * 80)), (screen_size[0], offset + (i * 80))
+        pg.draw.line(screen, pg.Color("black"), ((offset + board_size), offset + (i * cell_size)),
+                     (screen_size[0], offset + (i * cell_size))
                      , line_width)
         if i == 6:
-            font = pg.font.SysFont("Ariel", 80)
+            font = pg.font.SysFont("Ariel", cell_size)
             strikes_text = font.render('STRIKES', True, pg.Color("black"))
-            screen.blit(strikes_text, ((500 + screen_size[0]) // 2, (((i * 80) + ((i + 1) * 80)) // 2) - 5))
-        else:
+            screen.blit(strikes_text, ((500 + screen_size[0]) // 2, (((i * cell_size) + ((i + 1) * cell_size)) // 2) - 5))
+        else:  # draw strikes
             for j in range(board.strikes):
                 font = pg.font.SysFont(None, 120)
                 strikes_text = font.render('X', True, pg.Color("red"))
                 screen.blit(strikes_text,
-                            (((450 + screen_size[0]) // 2) + j * 120, (((i * 80) + ((i + 2) * 80)) // 2) - 20))
+                            (((450 + screen_size[0]) // 2) + j * 120, (((i * cell_size) + ((i + 2) * cell_size)) // 2) - 20))
 
 
 def draw_numbers(screen, font, board):
     row = 0
-    offset = 35
+    offset_ = 35
     # board_game = board.board_game
     while row < 9:
         col = 0
@@ -118,7 +125,7 @@ def draw_numbers(screen, font, board):
                     n_text = font.render(str(num), True, pg.Color("black"))
                 else:
                     n_text = font.render(str(num), True, pg.Color("red"))
-                screen.blit(n_text, pg.Vector2((col * 80) + offset + 5, (row * 80) + offset - 2))
+                screen.blit(n_text, pg.Vector2((col * cell_size) + offset + 25, (row * cell_size) + offset + 18))
             col += 1
         row += 1
 
@@ -149,6 +156,7 @@ def check_move(board):
     if cell.val != 0 and not cell.immutable:
         if solve(copy.deepcopy(board.board_game)):
             cell.immutable = True
+            board.empty_cells -= 1
         else:
             cell.val = 0
             board.board_game[board.selected[0]][board.selected[1]] = 0
@@ -170,10 +178,10 @@ def main():
                 sys.exit()
             if event.type == pg.MOUSEBUTTONUP:
                 pos = pg.mouse.get_pos()
-                if pos[0] < 15 or pos[0] > 735 or pos[1] < 15 or pos[1] > 735:
+                if pos[0] < offset or pos[0] > (offset + board_size) or pos[1] < offset or pos[1] > (offset + board_size):
                     board.selected = (-1, -1)
                 else:
-                    board.selected = (((pos[1] - 15) // 80), ((pos[0] - 15) // 80))
+                    board.selected = (((pos[1] - 15) // cell_size), ((pos[0] - 15) // cell_size))
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_s:
                     if not solve(board_game):
@@ -183,6 +191,7 @@ def main():
                         for j in range(len(board_game)):
                             board.cells[i][j].val = board_game[i][j]
                 if event.key == pg.K_KP_ENTER and board.selected != (-1, -1):
+                    print(board.empty_cells)
                     if not check_move(board):
                         board.strikes += 1
                 if event.key == pg.K_0 and board.selected != (-1, -1):
@@ -210,6 +219,9 @@ def main():
         draw(screen, font, board, play_time)
         if board.strikes >= 3:
             print("game over")
+            break
+        if board.empty_cells == 0:
+            print("finished")
             break
 
 
