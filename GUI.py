@@ -154,7 +154,7 @@ def check_move(board):
     if cell.val == 0:
         return True
     if cell.val != 0 and not cell.immutable:
-        if solve(copy.deepcopy(board.board_game)):
+        if solve(copy.deepcopy(board.board_game), False):
             cell.immutable = True
             board.empty_cells -= 1
         else:
@@ -184,7 +184,7 @@ def main():
                     board.selected = (((pos[1] - 15) // cell_size), ((pos[0] - 15) // cell_size))
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_s:
-                    if not solve(board_game):
+                    if not solve(board_game, False):
                         print("no possible solution for that current board")
                         sys.exit()
                     for i in range(len(board_game)):

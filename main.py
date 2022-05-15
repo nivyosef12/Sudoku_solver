@@ -1,8 +1,22 @@
+import random
+
+
 # board is 9X9
+
+
+def generate_board():
+    board = [[0 for i in range(1, 10)] for j in range(1, 10)]
+    solve(board, True)
+    print(board)
+    return board
+
+
 def get_grid(option):
     if option == 1:
         return [  # generate
-            [7, 8, 0, 4, 0, 0, 1, 2, 0],
+            [7, 8, 0, 4, 0, 0, 1
+
+                , 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
             [0, 0, 0, 6, 0, 1, 0, 7, 8],
             [0, 0, 7, 0, 4, 0, 2, 6, 0],
@@ -24,16 +38,27 @@ def get_grid(option):
     return grid
 
 
-def solve(board):
+def solve(board, random_mode):
     find = find_empty(board)
     if not find:
         return True
     else:
         row, col = find
-    for i in range(1, 10):
-        if is_valid_move(board, i, (row, col)):
-            board[row][col] = i
-            if solve(board):
+    nums = [[i, False] for i in range(1, 10)]
+    attempts = 0
+    while random_mode and attempts < 81:
+        attempts += 1
+        num = random.choice(nums)
+        if not num[1] and is_valid_move(board, num[0], (row, col)):
+            num[1] = True
+            board[row][col] = num[0]
+            if solve(board, True):
+                return True
+            board[row][col] = 0
+    for num in nums:
+        if not num[1] and is_valid_move(board, num[0], (row, col)):
+            board[row][col] = num[0]
+            if solve(board, False):
                 return True
             board[row][col] = 0
     return False
@@ -81,7 +106,7 @@ def main():
     option = int(input("Would you like to generate a board (1) or to play with specefic board? (2)\n"))
     grid = get_grid(option)
     print_board(grid)
-    if solve(grid):
+    if solve(grid, False):
         print("solved board is: ")
         print_board(grid)
     else:
