@@ -3,29 +3,41 @@ import random
 
 # board is 9X9
 
+def is_unique_solution(board, num_of_solutions):
+    if num_of_solutions < 2:
+        find = find_empty(board)
+        if not find:
+            return True
+        row, col = find
+        for num in range(1, 10):
+            if num_of_solutions < 2 and is_valid_move(board, num, (row, col)):
+                board[row][col] = num
+                if is_unique_solution(board, num_of_solutions):
+                    num_of_solutions += 1
+                board[row][col] = 0
+        return num_of_solutions == 1
+    return False
+
 
 def generate_board():
     board = [[0 for i in range(1, 10)] for j in range(1, 10)]
     solve(board, True)
-    print(board)
+    cells = [(j, i) for i in range(0, 9) for j in range(0, 9)]
+    random.shuffle(cells)
+    i = 0
+    for cell in cells:
+        if i < 30:  # TODO difficulty
+            temp = board[cell[0]][cell[1]]
+            board[cell[0]][cell[1]] = 0
+            if not is_unique_solution(board.copy(), 0):
+                board[cell[0]][cell[1]] = temp
+            i += 1
     return board
 
 
 def get_grid(option):
     if option == 1:
-        return [  # generate
-            [7, 8, 0, 4, 0, 0, 1
-
-                , 2, 0],
-            [6, 0, 0, 0, 7, 5, 0, 0, 9],
-            [0, 0, 0, 6, 0, 1, 0, 7, 8],
-            [0, 0, 7, 0, 4, 0, 2, 6, 0],
-            [0, 0, 1, 0, 5, 0, 9, 3, 0],
-            [9, 0, 4, 0, 6, 0, 0, 0, 5],
-            [0, 7, 0, 3, 0, 0, 0, 1, 2],
-            [1, 2, 0, 0, 0, 7, 4, 0, 0],
-            [0, 4, 9, 2, 0, 6, 0, 0, 7]
-        ]
+        return generate_board()
     grid = []
     for i in range(1, 10):
         row = list(input("Enter Row " + str(i) + " nums: \n"))
@@ -48,7 +60,7 @@ def solve(board, random_mode):
     attempts = 0
     while random_mode and attempts < 81:
         attempts += 1
-        num = random.choice(nums)
+        num = random.choice(nums)  # TODO maybe use shuffle
         if not num[1] and is_valid_move(board, num[0], (row, col)):
             num[1] = True
             board[row][col] = num[0]
@@ -94,7 +106,7 @@ def print_board(board):
                 print(str(board[i][j]) + " ", end="")
 
 
-def find_empty(board):
+def find_empty(board):  # finds the next empty cell in the board
     for i in range(len(board)):
         for j in range(len(board[0])):
             if board[i][j] == 0:
