@@ -56,20 +56,11 @@ def solve(board, random_mode):
         return True
     else:
         row, col = find
-    nums = [[i, False] for i in range(1, 10)]
-    attempts = 0
-    while random_mode and attempts < 81:
-        attempts += 1
-        num = random.choice(nums)  # TODO maybe use shuffle
-        if not num[1] and is_valid_move(board, num[0], (row, col)):
-            num[1] = True
-            board[row][col] = num[0]
-            if solve(board, True):
-                return True
-            board[row][col] = 0
+    nums = [i for i in range(1, 10)]
+    random.shuffle(nums)
     for num in nums:
-        if not num[1] and is_valid_move(board, num[0], (row, col)):
-            board[row][col] = num[0]
+        if is_valid_move(board, num, (row, col)):
+            board[row][col] = num
             if solve(board, False):
                 return True
             board[row][col] = 0
