@@ -9,11 +9,11 @@ screen_size = 1200, 750
 offset = 15
 board_size = 720
 cell_size = 80
-menu_explanation = "1. Click on the square you want to choose it \n2. Enter a number (invalid input or 0 won't appear " \
-                   "on the board \n3. While a number is red your choice is not final \n4. To finalize your choice, " \
-                   "click on the square you want to finalize and the press enter \n5. If you were correct the number " \
-                   "will turn black, else it will disappear and you'll get a strike \n6. Game is over when you'll get " \
-                   "3 strikes or when solving the sudoku \n7. To solve at any given moment, press s "
+menu = "1. Click on the square you want to choose it \n2. Enter a number (invalid input or 0 won't appear " \
+       "on screen) \n3. While a number is red your choice is not final \n4. To finalize your choice, " \
+       "click on the square you want to finalize and the press enter \n5. If you were correct the number " \
+       "will turn black, else it will disappear and you'll get a strike \n6. Game is over when you'll get " \
+       "3 strikes or when solving the sudoku \n7. To solve at any given moment, press s \n8.To quit press q"
 
 
 class Board:
@@ -23,7 +23,7 @@ class Board:
         self.selected = (-1, -1)  # selected by mouse click
         self.strikes = 0
         self.cells = []
-        self.empty_cells = 0
+        self.empty_cells = 0  # empty_cells == 0 iff sudoku is solved
         for i in range(9):
             list_i = []
             for j in range(9):
@@ -38,7 +38,7 @@ class Cell:
 
     def __init__(self, val, immutable):
         self.val = val
-        self.immutable = immutable
+        self.immutable = immutable  # cell.immutable == true iff cell.val is equal to
 
 
 def draw_background(screen, board, play_time):
@@ -92,7 +92,7 @@ def blit_text(surface, text, pos, font, color=pg.Color('black')):
 
 def draw_menu(screen, board, line_width, i, play_time):
     font = pg.font.SysFont("Segoe UI", 20)
-    blit_text(screen, menu_explanation, (screen_size[1], offset * 2 + 10), font, pg.Color('black'))
+    blit_text(screen, menu, (screen_size[1], offset * 2 + 10), font, pg.Color('black'))
     pg.draw.rect(screen, pg.Color("black"), pg.Rect(board_size + offset, offset, 465, board_size), 10)
     time_text = font.render("Time: " + format_time(play_time), True, pg.Color("black"))
     screen.blit(time_text, (screen_size[1], 460))
@@ -103,19 +103,20 @@ def draw_menu(screen, board, line_width, i, play_time):
         if i == 6:
             font = pg.font.SysFont("Ariel", cell_size)
             strikes_text = font.render('STRIKES', True, pg.Color("black"))
-            screen.blit(strikes_text, ((500 + screen_size[0]) // 2, (((i * cell_size) + ((i + 1) * cell_size)) // 2) - 5))
+            screen.blit(strikes_text,
+                        ((500 + screen_size[0]) // 2, (((i * cell_size) + ((i + 1) * cell_size)) // 2) - 5))
         else:  # draw strikes
             for j in range(board.strikes):
                 font = pg.font.SysFont(None, 120)
                 strikes_text = font.render('X', True, pg.Color("red"))
                 screen.blit(strikes_text,
-                            (((450 + screen_size[0]) // 2) + j * 120, (((i * cell_size) + ((i + 2) * cell_size)) // 2) - 20))
+                            (((450 + screen_size[0]) // 2) + j * 120,
+                             (((i * cell_size) + ((i + 2) * cell_size)) // 2) - 20))
 
 
 def draw_numbers(screen, font, board):
     row = 0
     offset_ = 35
-    # board_game = board.board_game
     while row < 9:
         col = 0
         while col < 9:
@@ -130,9 +131,21 @@ def draw_numbers(screen, font, board):
         row += 1
 
 
-def draw(screen, font, board, play_time):
+def draw_game_over_screen(screen, message):
+    font = pg.font.SysFont("Segoe UI", 50)
+    pg.draw.rect(screen, pg.Color("blue"), pg.Rect((offset + screen_size[1] - 350) / 2,
+                                                   (offset + screen_size[1] - 150) / 2, 600, 150))
+    blit_text(screen, message, ((offset + screen_size[1] - 300) / 2, (offset + screen_size[1] - 150) / 2),
+              font, pg.Color('black'))
+
+
+def draw(screen, font, board, play_time, game_over):
     draw_background(screen, board, play_time)
     draw_numbers(screen, font, board)
+    if game_over:
+        message = "Press g to generate a new\nsudoku board or q to quit"
+        draw_game_over_screen(screen, message)
+        pg.display.set_caption("Sudoku")
     pg.display.flip()
 
 
@@ -164,65 +177,80 @@ def check_move(board):
 
 
 def main():
-    board = Board(get_grid(1))  # deep copy??
+    board = Board(get_grid(1))
     screen = pg.display.set_mode(screen_size)
     font = pg.font.SysFont(None, 80)
     pg.display.set_caption("Sudoku")
     board_game = board.board_game
     start = time.time()
-    while 1:
+    game_over = False
+    stop = False
+    while not stop:
         play_time = round(time.time() - start)
         key = None
         for event in pg.event.get():
-            if event.type == pg.QUIT:
-                sys.exit()
-            if event.type == pg.MOUSEBUTTONUP:
-                pos = pg.mouse.get_pos()
-                if pos[0] < offset or pos[0] > (offset + board_size) or pos[1] < offset or pos[1] > (offset + board_size):
-                    board.selected = (-1, -1)
-                else:
-                    board.selected = (((pos[1] - 15) // cell_size), ((pos[0] - 15) // cell_size))
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_s:
-                    if not solve(board_game, False):
-                        print("no possible solution for that current board")
-                        sys.exit()
-                    for i in range(len(board_game)):
-                        for j in range(len(board_game)):
-                            board.cells[i][j].val = board_game[i][j]
-                if event.key == pg.K_KP_ENTER and board.selected != (-1, -1):
-                    print(board.empty_cells)
-                    if not check_move(board):
-                        board.strikes += 1
-                if event.key == pg.K_0 and board.selected != (-1, -1):
-                    key = 0
-                if event.key == pg.K_1 and board.selected != (-1, -1):
-                    key = 1
-                if event.key == pg.K_2 and board.selected != (-1, -1):
-                    key = 2
-                if event.key == pg.K_3 and board.selected != (-1, -1):
-                    key = 3
-                if event.key == pg.K_4 and board.selected != (-1, -1):
-                    key = 4
-                if event.key == pg.K_5 and board.selected != (-1, -1):
-                    key = 5
-                if event.key == pg.K_6 and board.selected != (-1, -1):
-                    key = 6
-                if event.key == pg.K_7 and board.selected != (-1, -1):
-                    key = 7
-                if event.key == pg.K_8 and board.selected != (-1, -1):
-                    key = 8
-                if event.key == pg.K_9 and board.selected != (-1, -1):
-                    key = 9
+            if not game_over:
+                if event.type == pg.QUIT:
+                    stop = True
+                if event.type == pg.MOUSEBUTTONUP:
+                    pos = pg.mouse.get_pos()
+                    if pos[0] <= offset or pos[0] >= (offset + board_size) or pos[1] <= offset or pos[1] >= (
+                            offset + board_size):
+                        board.selected = (-1, -1)
+                    else:
+                        board.selected = (((pos[1] - 15) // cell_size), ((pos[0] - 15) // cell_size))
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_q:
+                        stop = True
+                    if event.key == pg.K_s:
+                        if not solve(board_game, False):
+                            print("no possible solution for that current board")
+                            sys.exit()
+                        for i in range(len(board_game)):
+                            for j in range(len(board_game)):
+                                board.cells[i][j].val = board_game[i][j]
+                        game_over = True
+                    if event.key == pg.K_KP_ENTER and board.selected != (-1, -1):
+                        if not check_move(board):
+                            board.strikes += 1
+                    if event.key == pg.K_0 and board.selected != (-1, -1):
+                        key = 0
+                    if event.key == pg.K_1 and board.selected != (-1, -1):
+                        key = 1
+                    if event.key == pg.K_2 and board.selected != (-1, -1):
+                        key = 2
+                    if event.key == pg.K_3 and board.selected != (-1, -1):
+                        key = 3
+                    if event.key == pg.K_4 and board.selected != (-1, -1):
+                        key = 4
+                    if event.key == pg.K_5 and board.selected != (-1, -1):
+                        key = 5
+                    if event.key == pg.K_6 and board.selected != (-1, -1):
+                        key = 6
+                    if event.key == pg.K_7 and board.selected != (-1, -1):
+                        key = 7
+                    if event.key == pg.K_8 and board.selected != (-1, -1):
+                        key = 8
+                    if event.key == pg.K_9 and board.selected != (-1, -1):
+                        key = 9
+            else:
+                if event.type == pg.QUIT:
+                    stop = True
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_q:
+                        stop = True
+                    if event.key == pg.K_g:
+                        game_over = False
+                        board = Board(get_grid(1))
+                        board_game = board.board_game
+                        start = time.time()
         if key is not None:
             make_change(board, key)
-        draw(screen, font, board, play_time)
+        draw(screen, font, board, play_time, game_over)
         if board.strikes >= 3:
-            print("game over")
-            break
+            game_over = True
         if board.empty_cells == 0:
-            print("finished")
-            break
+            game_over = True
 
 
 main()

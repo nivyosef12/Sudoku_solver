@@ -26,7 +26,7 @@ def generate_board():
     random.shuffle(cells)
     i = 0
     for cell in cells:
-        if i < 30:  # TODO difficulty
+        if i < 45:  # TODO difficulty
             temp = board[cell[0]][cell[1]]
             board[cell[0]][cell[1]] = 0
             if not is_unique_solution(board.copy(), 0):
