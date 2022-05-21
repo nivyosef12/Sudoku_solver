@@ -2,7 +2,7 @@ import copy
 import time
 import pygame as pg
 import sys
-from main import get_grid, solve, is_valid_move
+from main import generate_board, solve, is_valid_move
 
 pg.init()
 screen_size = 1200, 750
@@ -22,8 +22,8 @@ class Board:
         self.board_game = board_game
         self.selected = (-1, -1)  # selected by mouse click
         self.strikes = 0
-        self.cells = []
         self.empty_cells = 0  # empty_cells == 0 iff sudoku is solved
+        self.cells = []
         for i in range(9):
             list_i = []
             for j in range(9):
@@ -38,7 +38,8 @@ class Cell:
 
     def __init__(self, val, immutable):
         self.val = val
-        self.immutable = immutable  # cell.immutable == true iff cell.val is equal to
+        # cell.immutable == true iff cell.val is equal to cell.val in the solved board
+        self.immutable = immutable
 
 
 def draw_background(screen, board, play_time):
@@ -167,7 +168,7 @@ def check_move(board):
     if cell.val == 0:
         return True
     if cell.val != 0 and not cell.immutable:
-        if solve(copy.deepcopy(board.board_game), False):
+        if solve(copy.deepcopy(board.board_game)):
             cell.immutable = True
             board.empty_cells -= 1
         else:
@@ -177,7 +178,7 @@ def check_move(board):
 
 
 def main():
-    board = Board(get_grid(1))
+    board = Board(generate_board())
     screen = pg.display.set_mode(screen_size)
     font = pg.font.SysFont(None, 80)
     pg.display.set_caption("Sudoku")
@@ -203,7 +204,7 @@ def main():
                     if event.key == pg.K_q:
                         stop = True
                     if event.key == pg.K_s:
-                        if not solve(board_game, False):
+                        if not solve(board_game):
                             print("no possible solution for that current board")
                             sys.exit()
                         for i in range(len(board_game)):
@@ -241,7 +242,7 @@ def main():
                         stop = True
                     if event.key == pg.K_g:
                         game_over = False
-                        board = Board(get_grid(1))
+                        board = Board(generate_board())
                         board_game = board.board_game
                         start = time.time()
         if key is not None:

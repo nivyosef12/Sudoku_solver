@@ -2,11 +2,11 @@ import random
 
 
 # board is 9X9
-
+# returns true iff num of solutions of board is 1
 def is_unique_solution(board, num_of_solutions):
     if num_of_solutions < 2:
         find = find_empty(board)
-        if not find:
+        if not find: # board is full
             return True
         row, col = find
         for num in range(1, 10):
@@ -21,12 +21,12 @@ def is_unique_solution(board, num_of_solutions):
 
 def generate_board():
     board = [[0 for i in range(1, 10)] for j in range(1, 10)]
-    solve(board, True)
+    solve(board)
     cells = [(j, i) for i in range(0, 9) for j in range(0, 9)]
     random.shuffle(cells)
     i = 0
     for cell in cells:
-        if i < 45:  # TODO difficulty
+        if i < 50:  # TODO difficulty
             temp = board[cell[0]][cell[1]]
             board[cell[0]][cell[1]] = 0
             if not is_unique_solution(board.copy(), 0):
@@ -50,9 +50,9 @@ def get_grid(option):
     return grid
 
 
-def solve(board, random_mode):
+def solve(board):
     find = find_empty(board)
-    if not find:
+    if not find:  # board if full
         return True
     else:
         row, col = find
@@ -61,7 +61,7 @@ def solve(board, random_mode):
     for num in nums:
         if is_valid_move(board, num, (row, col)):
             board[row][col] = num
-            if solve(board, False):
+            if solve(board):
                 return True
             board[row][col] = 0
     return False
@@ -109,7 +109,7 @@ def main():
     option = int(input("Would you like to generate a board (1) or to play with specefic board? (2)\n"))
     grid = get_grid(option)
     print_board(grid)
-    if solve(grid, False):
+    if solve(grid):
         print("solved board is: ")
         print_board(grid)
     else:
