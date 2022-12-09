@@ -103,7 +103,7 @@ class Board:
         strike_space = 150
         font = pygame.font.SysFont("Ariel", font_size)
         for i in range(self.strikes):
-            some_text = font.render("X", True, BLACK)
+            some_text = font.render("X", True, RED)
             screen.blit(some_text, ((self.board_width + (self.board_width // 11)) + i * strike_space, self.board_width - 1.5 * self.cell_width))
 
     def draw(self, screen, font, play_time):
