@@ -114,6 +114,10 @@
 #         print_board(grid)
 #     else:
 #         print("no possible solution")
+
+# TODO
+# 1. add choose difficulty option
+
 import pygame
 import time
 from gameBoard import Board
@@ -130,24 +134,82 @@ FONT = pygame.font.SysFont("Ariel", 80)
 
 
 def main():
-    tmp = generate_board()
-    game_board = Board(tmp, BOARD_WIDTH, MENU_WIDTH)
+    solved_board = generate_board()
+    game_board = Board(solved_board, BOARD_WIDTH, MENU_WIDTH)
+    # will be used to check if a players move is legal since there's only one possible solution
+    if not solve(solved_board):
+        print("possible? CHECK!")
+
     run = True
+    game_over = False
+    curr_cell = None
     start_time = time.time()
 
     while run:
         play_time = round(time.time() - start_time)
         game_board.draw(SCREEN, FONT, play_time)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
             if pygame.mouse.get_pressed()[0]:  # left click
+                # get clicked cell
                 pos = pygame.mouse.get_pos()
                 row, col = game_board.get_clicked_pos(pos)
-                cell = game_board.get_cell(row, col)
-                if cell is not None:
-                    cell.click()
+                curr_cell = game_board.get_cell(row, col)
+                if curr_cell is not None:
+                    curr_cell.click()
+
+            if event.type == pygame.KEYDOWN:
+
+                # quit
+                if event.key == pygame.K_q:
+                    run = False
+
+                # solve
+                if event.key == pygame.K_s:
+                    for i in range(0, 9):
+                        for j in range(0, 9):
+                            game_board.get_cell(i, j).set_val(solved_board[i][j])
+                    game_over = True
+
+                if event.key == pygame.K_KP_ENTER and curr_cell is not None:
+                    if curr_cell.val != solved_board[curr_cell.col][curr_cell.row]:
+                        game_board.strike()
+                    else:
+                        curr_cell.make_immutable()
+
+                # fill numbers
+                if event.key == pygame.K_0 and curr_cell is not None:
+                    curr_cell.set_val(0)
+
+                if event.key == pygame.K_1 and curr_cell is not None:
+                    curr_cell.set_val(1)
+
+                if event.key == pygame.K_2 and curr_cell is not None:
+                    curr_cell.set_val(2)
+
+                if event.key == pygame.K_3 and curr_cell is not None:
+                    curr_cell.set_val(3)
+
+                if event.key == pygame.K_4 and curr_cell is not None:
+                    curr_cell.set_val(4)
+
+                if event.key == pygame.K_5 and curr_cell is not None:
+                    curr_cell.set_val(5)
+
+                if event.key == pygame.K_6 and curr_cell is not None:
+                    curr_cell.set_val(6)
+
+                if event.key == pygame.K_7 and curr_cell is not None:
+                    curr_cell.set_val(7)
+
+                if event.key == pygame.K_8 and curr_cell is not None:
+                    curr_cell.set_val(8)
+
+                if event.key == pygame.K_9 and curr_cell is not None:
+                    curr_cell.set_val(9)
 
     pygame.quit()
 

@@ -55,7 +55,7 @@ class Board:
         self.menu_width = menu_width
         self.board_game = board_game
         self.selected = [-1, -1]  # selected by mouse click
-        self.strikes = 3
+        self.strikes = 0
         self.empty_cells = 0  # empty_cells == 0 iff sudoku is solved
         self.cells = []
         self.cell_width = board_width // 9
@@ -127,12 +127,18 @@ class Board:
 
     def get_cell(self, row, col):
         if 0 <= row < 9 and 0 <= col < 9:
-            self.cells[self.selected[0]][self.selected[1]].un_click()
+            # for the first click
+            if self.selected[0] >= 0:
+                self.cells[self.selected[0]][self.selected[1]].un_click()
+
             self.selected[0] = row
             self.selected[1] = col
             return self.cells[row][col]
 
         return None
+
+    def strike(self):
+        self.strikes += 1
 
 
 class Cell:
@@ -155,9 +161,9 @@ class Cell:
         if self.immutable:
             val_text = font.render(str(self.val), True, BLACK)
         else:
-            val_text = font.render(str(self.val), True, RED)
+            val_text = font.render(str(self.val), True, GRAY)
         if self.val != 0:
-            screen.blit(val_text, pygame.Vector2(self.y + offset, self.x + offset // 2))
+            screen.blit(val_text, pygame.Vector2(self.x + offset, self.y + offset // 2))
 
     def make_immutable(self):
         self.immutable = True

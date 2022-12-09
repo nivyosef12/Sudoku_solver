@@ -4,17 +4,17 @@ import random
 def solve(board):
     # find next empty cell
     find = find_empty(board)
-
+    
     if not find:  # board if full
         return True
-
+    
     else:
         row, col = find
-
+    
     # get numbers 1 - 9 in random order
     nums = [i for i in range(1, 10)]
     random.shuffle(nums)
-
+     
     for num in nums:
 
         if is_valid_move(board, num, (row, col)):
@@ -69,6 +69,6 @@ def find_empty(board):
         for j in range(len(board[0])):
             if board[i][j] == 0:
                 return i, j  # row, col
-            
+
     return None
 
