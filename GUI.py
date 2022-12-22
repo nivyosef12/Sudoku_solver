@@ -2,7 +2,8 @@ import copy
 import time
 import pygame as pg
 import sys
-from main import generate_board, solve, is_valid_move
+from solver import solve, is_valid_move
+from generator import generate_board
 
 pg.init()
 screen_size = 1200, 750
@@ -117,7 +118,6 @@ def draw_menu(screen, board, line_width, i, play_time):
 
 def draw_numbers(screen, font, board):
     row = 0
-    offset_ = 35
     while row < 9:
         col = 0
         while col < 9:
