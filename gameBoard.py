@@ -44,7 +44,8 @@ def format_time(secs):
     sec = secs % 60
     minute = secs // 60
     hour = minute // 60
-    clock = " " + str(minute) + ":" + str(sec) if hour == 0 else " " + str(hour) + ":" + str(minute) + ":" + str(sec)
+    clock = f" {minute}" if hour == 0 else f" {hour}: {minute}"
+    clock = f"{clock}:0{sec}" if sec < 10 else f"{clock}:{sec}"
     return clock
 
 
@@ -86,7 +87,7 @@ class Board:
 
         # draw line -> (,)  -> (,) : from : to
         pygame.draw.line(screen, BLACK, (self.board_width - space, (2 * self.board_width // 3) - 3),
-                                        (self.board_width + self.menu_width, (2 * self.board_width // 3) - 3), 3)
+                         (self.board_width + self.menu_width, (2 * self.board_width // 3) - 3), 3)
 
         # strikes text
         font_size = 80
@@ -102,9 +103,11 @@ class Board:
         font_size = 120
         strike_space = 150
         font = pygame.font.SysFont("Ariel", font_size)
-        for i in range(self.strikes):
-            some_text = font.render("X", True, RED)
-            screen.blit(some_text, ((self.board_width + (self.board_width // 11)) + i * strike_space, self.board_width - 1.5 * self.cell_width))
+        if self.strikes < 4:
+            for i in range(self.strikes):
+                some_text = font.render("X", True, RED)
+                screen.blit(some_text, ((self.board_width + (self.board_width // 11)) + i * strike_space,
+                                                    self.board_width - 1.5 * self.cell_width))
 
     def draw(self, screen, font, play_time):
         screen.fill(WHITE)
@@ -120,10 +123,11 @@ class Board:
 
     def get_clicked_pos(self, pos):
         x, y = pos
-        row = x // self.cell_width
-        col = y // self.cell_width
 
-        return row, col
+        col = y // self.cell_width
+        row = x // self.cell_width
+
+        return col, row
 
     def get_cell(self, row, col):
         if 0 <= row < 9 and 0 <= col < 9:
@@ -157,13 +161,13 @@ class Cell:
 
     def draw(self, screen, font):
         offset = self.width // 3
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.width), LINE_WIDTH)
+        pygame.draw.rect(screen, self.color, (self.y, self.x, self.width, self.width), LINE_WIDTH)
         if self.immutable:
             val_text = font.render(str(self.val), True, BLACK)
         else:
             val_text = font.render(str(self.val), True, GRAY)
         if self.val != 0:
-            screen.blit(val_text, pygame.Vector2(self.x + offset, self.y + offset // 2))
+            screen.blit(val_text, pygame.Vector2(self.y + offset, self.x + offset // 2))
 
     def make_immutable(self):
         self.immutable = True
